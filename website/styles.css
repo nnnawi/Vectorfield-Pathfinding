@@ -1,0 +1,46 @@
+.collapsible {
+	margin-left:50%;
+    transform: translate(-50%);
+    font-size:13px;
+    padding: 7px 78px;
+    background: #fff;
+    border: none;
+    box-shadow: inset 0px -3px 5px #e8e8e8;
+    border-radius: 4px;
+}
+
+.collapsible:hover {
+    background: #c5e2f0;
+    box-shadow: inset 0px -3px 5px #caeafa;
+}
+
+.collapsible:active {
+    position: relative;
+    margin-top: 1px;
+}
+
+.content{
+    padding: 20px 20px 20px 20px;
+    width: 95%;
+    margin: auto;
+    background: #e3e3e3;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.blog_wrapper h2, h3, h4{
+    font-family: "Roboto";
+}
+
+.blog_wrapper p{
+    font-family: "Open Sans";
+}
+
+.blog_wrapper h3{
+    color: #3d4552;
+}
+
+.blog_wrapper h4{
+    color: #5b677a;
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website name</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <script src="update.js"></script>
+    <script src="libraries/load-mathjax.js"></script>
+    <script src="libraries/math.js"></script>
+    <script src="libraries/p5.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-chtml.js"
+            integrity="sha256-3Fdoa5wQb+JYfEmTpQHx9sc/GuwpfC/0R9EpBki+mf8=" crossorigin>
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js">
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="margin: 0">
+    <div class="header" style="background:#0ba840;width:100%;height:200px;margin-bottom:50px;display:flex;flex-direction: column;justify-content: center;align-items: center;font-family: Open Sans;">
+        <h1 style="letter-spacing: -1px;padding-bottom: 6px;font-size: 35px;color: #fff;">Vectorfield Pathfinding : A Study</h1>
+    </div>
+    <div class="blog_wrapper" style="display:flex; flex-direction:column; margin:auto; width:800px">
+        <div class="paragraph_1_wrapper">
+            <h2>Introduction</h2>
+            <p>
+                A Few month ago, while working on a remake of the Wii Tank Game <span style="font-style: italic;">( especially the behavior of the ennemy's AI )</span>, I stumbled upon vectorfield pathfinding, a new approach on pathfinding algorithms.
+            </p>
+            <img src="pictures/wii_tank.gif" style="width:60%;height:60%;position:relative;margin-left:50%;transform:translate(-50%);padding: 15px 0 15px 0;box-shadow: 0px 0px 10px #d6d6d6;" alt="">
+            <p>
+                The goal of the algorithm is to compute the shortest path to a target for every points of a map, in one single calculation, aknowledging obstacles. Compared to <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A-Star</a> or <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Djikstra's</a> algorithm, this one allows greater performance 
+                when working with a medium / large amount of agents.
+            </p>
+            <p>
+                In today's post, we will first explain the idea of vectorfield pathfinding and how to construct it. Further, I will present a personnal study on how to optimize the different methods and parameters used in the algorithms <span style="font-style: italic;">( in order to better suit criterias of smoothness or divergence for instance )</span>.
+            </p>
+        </div>
+
+        <div class="paragraph_1_wrapper">
+            <h2>Building the algorithm</h2>
+            <h3>Defining the grid</h3>
+            <p>
+                Let set our world on a 2D map to which we overlay a square grid. The size of each square should be choosen according the shape and size of the obstacles. Indeed, smaller squares will better "discretize" our world's obtacles.
+            </p>
+            Pictures of bad and good choice of tile size
+            <p>
+                This condition on the tile's size is mandatory, but we will later see how their size also influence behaviors like the smoothness or the precision of the paths.
+            </p>
+            <h3>Generating the heatmap</h3>
+            <p>
+                First, we need to generate the heatmap of our world, meaning the scalar-field that gives us the distance of each tile from the target.
+                To do that, many algorithms exist like <a href="">BFS</a> or even A* but here we will use a modified Djikstra algorithm.
+            </p>
+            <p>
+                The principle of the Djikstra algorithm is a very straight foward:
+                <div style="width:600px; margin: auto;">
+                    <pre id="quicksort" style="display:hidden;">
+                        % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+                        \begin{algorithm}
+                        \caption{Djisktra Algorithm}
+                        \begin{algorithmic}
+                        \PROCEDURE{Djikstra}{$\text{Map},\text{Target node}$}
+                        \STATE $\text{Open List} = [\text{Target node}]$
+                        \WHILE{$\text{len}(\text{Open List}) \neq 0$}
+                        \STATE $\text{Current node} = \text{Open List}[0]$
+                        \FOR{$\text{each Neighbor $i$ of Current node}$}
+                            \IF{$\text{$i$ is a wall}$}
+                                \STATE{$\text{break}$}
+                            \ENDIF
+                            \IF{$ i \text{ was never visited}$}
+                                \STATE $i.distance$ = $\text{current_node}.distance + 1$
+                                \STATE{$\text{Add $i$ to Open List}$}
+                            \ENDIF
+                            \IF{$ i \text{ was visited}$}
+                                \IF{$ i.distance > \text{current_node}.distance + 1$}
+                                    \STATE{$i.distance = \text{current_node}.distance + 1$}
+                                \ENDIF
+                            \ENDIF
+                        \ENDFOR
+                        \STATE{$\text{Remove Current node from Open List}$}
+                        \ENDWHILE
+                        \ENDPROCEDURE
+                        \end{algorithmic}
+                        \end{algorithm}
+                    </pre>
+                </div>
+            </p>
+            <p>
+                Here, I implemented our Djikstra algorithm in Javasript using the p5.js library. Each tile of the grid is highlighted in 
+                a shade of red, depending of its distance to the target node.
+            </p>
+            <div>
+
+            </div>
+            <h3>Generating the vectorfield</h3>
+            <p>
+                Now that the heatmap is here, our goal is to generate the vectorfield from the later. To do that, we are going to base our approach on <a href="">Kernel Convolution</a>.
+                Simply put, to determinate the direction a tile needs to point to, we look at its neighbors on a fixed radius $r$ in order to compute the tile's gradient. Indeed, in mathematics, the gradient 
+                refers to the rate of change of a function, but when this function is 2D like here, the gradient (now defined as a vector) orientation can be interpreted as the direction of the change.
+            </p>
+            <p>
+                Here, we will present 3 different methods to compute the direction of a tile and why they theoraticaly work.
+            </p>
+        </div>
+    </div>
+</body>
+<script>
+    pseudocode.renderElement(document.getElementById("quicksort"));
+</script>
+</html>
