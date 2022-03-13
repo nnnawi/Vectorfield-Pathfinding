@@ -4,15 +4,84 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vectorfield pathfinding : a Study</title>
+    <title>Vectorfield pathfinding : a study</title>
     <script src="libraries/load-mathjax.js"></script>
     <script src="libraries/p5.min.js"></script>
+    <script src="libraries/math.js"></script>
     <script src="https://unpkg.com/mathlive/dist/mathlive.min.js"></script>
     <script src="main.js"></script>
+    <script src="page-updater.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="djisktra_heat_map"></div>
-    <div id="vectorfield_pathfinding"></div>
-    <input type="range" min="0" max="20" step="0.1" oninput="console.log(power);myp5.compute_vectorfield()">
+    <div class="blog_wrapper" style="margin: auto; width: 1000px">
+        <div class="vectorfield-wrapper" style="display: flex; flex-direction: row; box-shadow: 0 0 5px #dbdbdb;padding: 5px;">
+            <div id="vectorfield_pathfinding" style="margin: 0; box-shadow: 0 0 15px #d4d4d4"></div>
+            <div style="width: 100vw;display: flex;flex-direction: column;justify-content: center;align-items: center;">
+                <div>
+                    <div class="option-wrapper">
+                        <p>Distance: </p>
+                        <div>
+                            <input type="radio" id="tchebychev" name="distance" onclick="distance_choice = 0; myp5.compute_vectorfield();" checked>
+                            <label for="tchebychev">Tchebychev</label>
+                        </div> 
+                        <div>
+                            <input type="radio" id="manhattan" name="distance" onclick="distance_choice = 1; myp5.compute_vectorfield();">
+                            <label for="manhattan">Manhattan</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="euclidian" name="distance" onclick="distance_choice = 2; myp5.compute_vectorfield();">
+                            <label for="euclidian">Euclidian</label>
+                        </div>
+                    </div>
+
+                    <div class="option-wrapper">
+                        <p>Kernel function: </p>
+                        <div>
+                            <input type="radio" id="sobel" value="sobel" name="kernel" onclick="gradient_choice = 1; myp5.compute_vectorfield();">
+                            <label for="sobel">Sobel</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="minimum" value="minimum" name="kernel" onclick="gradient_choice = 2; myp5.compute_vectorfield();">
+                            <label for="minimum">Minimum</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="function" value="function" name="kernel" onclick="gradient_choice = 0; myp5.compute_vectorfield();" checked>
+                            <label for="function">Function</label>
+                            <math-field class="formula" id="1" style="font-size: 20px;box-shadow: inset 0 0 4px #dddddd;padding: 10px; border-radius: 4px; border: solid #51a2ff; margin-top: 5px">-x</math-field>
+                        </div>
+
+                    </div>
+
+                    <div class="option-wrapper">
+                        <p>Display operator: <input type="checkbox" onchange="operator_boolean = this.checked"></p>
+                        <div>
+                            <input type="radio" id="divergence" value="divergence" name="operator" onclick="operator_choice = 0" checked>
+                            <label for="divergence">Divergence</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="curl" value="curl" name="operator" onclick="operator_choice = 1">
+                            <label for="curl">Curl</label>
+                        </div>
+                    </div>
+
+                    <div class="option-wrapper">
+                        <p>Neighbor mode: <select name="neighbor" id="neighbor" onchange="neighbor_choice = this.value;myp5.compute_vectorfield();">
+                            <option value="0">3x3</option>
+                            <option value="1">3x3 Cross</option>
+                            <option value="2">5x5</option>
+                            <option value="3">5x5 Circle</option>
+                        </select></p>
+                    </div>
+
+                    <div class="option-wrapper">
+                        <button onclick="myp5.compute_vectorfield();">Compute vectorfield</button>
+                        <button onclick="myp5.init_grid();">Clear grid</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
